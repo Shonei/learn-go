@@ -28,7 +28,6 @@ func (f *File) ReadFile(s string) {
 func (f *File) Interpret() {
 	f.memory = append(f.memory, 0)
 	for i := 0; i < len(f.str); i++ {
-		// fmt.Println(f.str[i])
 		switch f.str[i] {
 		case 60: // <
 			f.index--
@@ -52,19 +51,24 @@ func (f *File) Interpret() {
 			f.memory[f.index] = []byte(input)[0]
 		case 91: // [
 			if f.memory[f.index] == 0 {
-				for ; f.str[i] != 93; i++ {
+				con := 0
+				for ; f.str[i] != 93 && con == 0; i++ {
+					if f.str[i] == 91 {
+						con++
+					} else if f.str[i] == 93 {
+						con--
+					}
 				}
 			} else {
 				f.stack.Push(i)
 				// i++
 			}
 		case 93: // ]
-			// fmt.Printf("%v", f.memory[f.index])
 			if f.memory[f.index] == 0 {
 				f.stack.Pop()
 				// i++
 			} else {
-				i = f.stack.Top()
+				i = f.stack.Pop() - 1
 			}
 		default:
 			fmt.Printf("")
