@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"log"
+	"net/http"
 
 	"github.com/Shonei/learn-go/distributed-systems/helpers"
 
@@ -10,18 +11,29 @@ import (
 )
 
 func main() {
-	// http.HandleFunc("/", serve)
-	// http.ListenAndServe(":8080", nil)
 
 	connStr := "user=postgres dbname=ds sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
-	defer db.Close()
-
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer db.Close()
 
-	// res := hlp.CreateTable([]byte(`{"User": "Shonei", "Keys": [{"Key":"one", "Value":""}, {"Key":"shdgd", "Value":""}, {"Key":"two", "Value":""}]}`), db, "fjghfg")
+	http.HandleFunc("/", hlp.Root(db))
+	http.HandleFunc("/get/", hlp.Get(db))
+	http.ListenAndServe(":8080", nil)
+
+	// res := hlp.CreateTable([]byte(`{"User": "Shonei", "Keys": [{"Key":"one"}, {"Key":"shdgd"}, {"Key":"two"}]}`), db, "fjghfg")
 	// fmt.Println(res)
-	hlp.GetUsersData(db, "Shonei", "fjghfg")
+	// hlp.GetUsersData(db, "Shonei", "fjghfg")
+	// d := []hlp.Pair{hlp.Pair{Key: "one", Value: "sdadgg"},
+	// 	hlp.Pair{Key: "shdgd", Value: "sdgereyh"},
+	// 	hlp.Pair{Key: "two", Value: "sdgzvasok"}}
+	// foo, err := json.Marshal(d)
+	// if err != nil {
+	// 	return
+	// }
+	// hlp.InsertIntoUser(db, foo, "Shonei")
 }
+
+// curl --header "Email: teodor.shyl@gmail.com" --data '{"User": "dfhdf", "Keys": [{"Key":"one"}, {"Key":"shdgd"}, {"Key":"two"}]}'

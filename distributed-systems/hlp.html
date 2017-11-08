@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#375EAB">
+
+  <title>hlp - The Go Programming Language</title>
+
+<link type="text/css" rel="stylesheet" href="/lib/godoc/style.css">
+
+<link rel="stylesheet" href="/lib/godoc/jquery.treeview.css">
+<script type="text/javascript">window.initFuncs = [];</script>
+</head>
+<body>
+
+<div id='lowframe' style="position: fixed; bottom: 0; left: 0; height: 0; width: 100%; border-top: thin solid grey; background-color: white; overflow: auto;">
+...
+</div><!-- #lowframe -->
+
+<div id="topbar" class="wide"><div class="container">
+<div class="top-heading" id="heading-wide"><a href="/">The Go Programming Language</a></div>
+<div class="top-heading" id="heading-narrow"><a href="/">Go</a></div>
+<a href="#" id="menu-button"><span id="menu-button-arrow">&#9661;</span></a>
+<form method="GET" action="/search">
+<div id="menu">
+<a href="/doc/">Documents</a>
+<a href="/pkg/">Packages</a>
+<a href="/project/">The Project</a>
+<a href="/help/">Help</a>
+<a href="/blog/">Blog</a>
+
+<input type="text" id="search" name="q" class="inactive" value="Search" placeholder="Search">
+</div>
+</form>
+
+</div></div>
+
+
+
+<div id="page" class="wide">
+<div class="container">
+
+
+  <h1>
+    Package hlp
+    <span class="text-muted"></span>
+  </h1>
+
+
+
+
+
+
+
+<div id="nav"></div>
+
+
+<!--
+	Copyright 2009 The Go Authors. All rights reserved.
+	Use of this source code is governed by a BSD-style
+	license that can be found in the LICENSE file.
+-->
+<!--
+	Note: Static (i.e., not template-generated) href and id
+	attributes start with "pkg-" to make it impossible for
+	them to conflict with generated attributes (some of which
+	correspond to Go identifiers).
+-->
+
+	<script type='text/javascript'>
+	document.ANALYSIS_DATA = null;
+	document.CALLGRAPH = null;
+	</script>
+
+	
+		
+		<div id="short-nav">
+			<dl>
+			<dd><code>import "github.com/Shonei/learn-go/distributed-systems/helpers"</code></dd>
+			</dl>
+			<dl>
+			<dd><a href="#pkg-overview" class="overviewLink">Overview</a></dd>
+			<dd><a href="#pkg-index" class="indexLink">Index</a></dd>
+			
+			
+			</dl>
+		</div>
+		<!-- The package's Name is printed as title by the top-level template -->
+		<div id="pkg-overview" class="toggleVisible">
+			<div class="collapsed">
+				<h2 class="toggleButton" title="Click to show Overview section">Overview ▹</h2>
+			</div>
+			<div class="expanded">
+				<h2 class="toggleButton" title="Click to hide Overview section">Overview ▾</h2>
+				<p>
+Package hlp provides functions for accessing the database
+and server handlers
+</p>
+
+			</div>
+		</div>
+		
+
+		<div id="pkg-index" class="toggleVisible">
+		<div class="collapsed">
+			<h2 class="toggleButton" title="Click to show Index section">Index ▹</h2>
+		</div>
+		<div class="expanded">
+			<h2 class="toggleButton" title="Click to hide Index section">Index ▾</h2>
+
+		<!-- Table of contents for API; must be named manual-nav to turn off auto nav. -->
+			<div id="manual-nav">
+			<dl>
+			
+			
+			
+				
+				<dd><a href="#GetUsersData">func GetUsersData(db *sql.DB, uname, email string) [][]Pair</a></dd>
+			
+				
+				<dd><a href="#InsertIntoUser">func InsertIntoUser(db *sql.DB, data []Pair, uname string) error</a></dd>
+			
+			
+				
+				<dd><a href="#Data">type Data</a></dd>
+				
+				
+			
+				
+				<dd><a href="#Pair">type Pair</a></dd>
+				
+				
+			
+				
+				<dd><a href="#Responce">type Responce</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#CreateTable">func CreateTable(j []byte, db *sql.DB, email string) Responce</a></dd>
+				
+				
+			
+				
+				<dd><a href="#Table">type Table</a></dd>
+				
+				
+			
+			
+			</dl>
+			</div><!-- #manual-nav -->
+
+		
+
+		
+			<h4>Package files</h4>
+			<p>
+			<span style="font-size:90%">
+			
+				<a href="/src/github.com/Shonei/learn-go/distributed-systems/helpers/db.go">db.go</a>
+			
+				<a href="/src/github.com/Shonei/learn-go/distributed-systems/helpers/handlers.go">handlers.go</a>
+			
+			</span>
+			</p>
+		
+		</div><!-- .expanded -->
+		</div><!-- #pkg-index -->
+
+		<div id="pkg-callgraph" class="toggle" style="display: none">
+		<div class="collapsed">
+			<h2 class="toggleButton" title="Click to show Internal Call Graph section">Internal call graph ▹</h2>
+		</div> <!-- .expanded -->
+		<div class="expanded">
+			<h2 class="toggleButton" title="Click to hide Internal Call Graph section">Internal call graph ▾</h2>
+			<p>
+			  In the call graph viewer below, each node
+			  is a function belonging to this package
+			  and its children are the functions it
+			  calls&mdash;perhaps dynamically.
+			</p>
+			<p>
+			  The root nodes are the entry points of the
+			  package: functions that may be called from
+			  outside the package.
+			  There may be non-exported or anonymous
+			  functions among them if they are called
+			  dynamically from another package.
+			</p>
+			<p>
+			  Click a node to visit that function's source code.
+			  From there you can visit its callers by
+			  clicking its declaring <code>func</code>
+			  token.
+			</p>
+			<p>
+			  Functions may be omitted if they were
+			  determined to be unreachable in the
+			  particular programs or tests that were
+			  analyzed.
+			</p>
+			<!-- Zero means show all package entry points. -->
+			<ul style="margin-left: 0.5in" id="callgraph-0" class="treeview"></ul>
+		</div>
+		</div> <!-- #pkg-callgraph -->
+
+		
+		
+		
+			
+			
+			<h2 id="GetUsersData">func <a href="/src/github.com/Shonei/learn-go/distributed-systems/helpers/db.go?s=2928:2987#L107">GetUsersData</a>
+				<a class="permalink" href="#GetUsersData">&#xb6;</a>
+			</h2>
+			<pre>func GetUsersData(db *<a href="/pkg/database/sql/">sql</a>.<a href="/pkg/database/sql/#DB">DB</a>, uname, email <a href="/pkg/builtin/#string">string</a>) [][]<a href="#Pair">Pair</a></pre>
+			<p>
+GetUsersData returns the information a users has stored
+in his custom database.
+</p>
+
+			
+			
+
+		
+			
+			
+			<h2 id="InsertIntoUser">func <a href="/src/github.com/Shonei/learn-go/distributed-systems/helpers/db.go?s=4570:4634#L178">InsertIntoUser</a>
+				<a class="permalink" href="#InsertIntoUser">&#xb6;</a>
+			</h2>
+			<pre>func InsertIntoUser(db *<a href="/pkg/database/sql/">sql</a>.<a href="/pkg/database/sql/#DB">DB</a>, data []<a href="#Pair">Pair</a>, uname <a href="/pkg/builtin/#string">string</a>) <a href="/pkg/builtin/#error">error</a></pre>
+			<p>
+InsertIntoUser is used to put data into the custom user table
+It needs the array of data to put and the username
+</p>
+
+			
+			
+
+		
+		
+			
+			
+			<h2 id="Data">type <a href="/src/github.com/Shonei/learn-go/distributed-systems/helpers/handlers.go?s=61:93#L1">Data</a>
+				<a class="permalink" href="#Data">&#xb6;</a>
+			</h2>
+			
+			<pre>type Data struct {
+<span id="Data.D"></span>    D <a href="/pkg/builtin/#string">string</a>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="Pair">type <a href="/src/github.com/Shonei/learn-go/distributed-systems/helpers/db.go?s=343:405#L11">Pair</a>
+				<a class="permalink" href="#Pair">&#xb6;</a>
+			</h2>
+			<p>
+Pair key values for creating and inserting data
+</p>
+
+			<pre>type Pair struct {
+<span id="Pair.Key"></span>    Key   <a href="/pkg/builtin/#string">string</a>
+<span id="Pair.Value"></span>    Value <a href="/pkg/builtin/#string">string</a> `json:&#34;-&#34;`
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="Responce">type <a href="/src/github.com/Shonei/learn-go/distributed-systems/helpers/db.go?s=470:645#L17">Responce</a>
+				<a class="permalink" href="#Responce">&#xb6;</a>
+			</h2>
+			<p>
+Responce structure for confirming registration for users
+</p>
+
+			<pre>type Responce struct {
+<span id="Responce.GetURL"></span>    GetURL          <a href="/pkg/builtin/#string">string</a>
+<span id="Responce.PostURL"></span>    PostURL         <a href="/pkg/builtin/#string">string</a>
+<span id="Responce.PostDescription"></span>    PostDescription <a href="/pkg/builtin/#string">string</a>
+<span id="Responce.Status"></span>    Status          <a href="/pkg/builtin/#string">string</a>
+<span id="Responce.Description"></span>    Description     <a href="/pkg/builtin/#string">string</a>
+<span id="Responce.Error"></span>    Error           <a href="/pkg/builtin/#string">string</a>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+				
+				<h3 id="CreateTable">func <a href="/src/github.com/Shonei/learn-go/distributed-systems/helpers/db.go?s=756:817#L28">CreateTable</a>
+					<a class="permalink" href="#CreateTable">&#xb6;</a>
+				</h3>
+				<pre>func CreateTable(j []<a href="/pkg/builtin/#byte">byte</a>, db *<a href="/pkg/database/sql/">sql</a>.<a href="/pkg/database/sql/#DB">DB</a>, email <a href="/pkg/builtin/#string">string</a>) <a href="#Responce">Responce</a></pre>
+				<p>
+CreateTable takes information for a http request
+and create a table for a user wishing to register
+</p>
+
+				
+				
+			
+
+			
+		
+			
+			
+			<h2 id="Table">type <a href="/src/github.com/Shonei/learn-go/distributed-systems/helpers/db.go?s=237:287#L5">Table</a>
+				<a class="permalink" href="#Table">&#xb6;</a>
+			</h2>
+			<p>
+Table structure for registering a user
+</p>
+
+			<pre>type Table struct {
+<span id="Table.User"></span>    User <a href="/pkg/builtin/#string">string</a>
+<span id="Table.Keys"></span>    Keys []<a href="#Pair">Pair</a>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+	
+
+	
+
+
+
+
+
+
+
+<div id="footer">
+Build version go1.9.<br>
+Except as <a href="https://developers.google.com/site-policies#restrictions">noted</a>,
+the content of this page is licensed under the
+Creative Commons Attribution 3.0 License,
+and code is licensed under a <a href="/LICENSE">BSD license</a>.<br>
+<a href="/doc/tos.html">Terms of Service</a> | 
+<a href="http://www.google.com/intl/en/policies/privacy/">Privacy Policy</a>
+</div>
+
+</div><!-- .container -->
+</div><!-- #page -->
+
+<!-- TODO(adonovan): load these from <head> using "defer" attribute? -->
+<script type="text/javascript" src="/lib/godoc/jquery.js"></script>
+<script type="text/javascript" src="/lib/godoc/jquery.treeview.js"></script>
+<script type="text/javascript" src="/lib/godoc/jquery.treeview.edit.js"></script>
+
+
+<script>var goVersion = "go1.9";</script>
+<script type="text/javascript" src="/lib/godoc/godocs.js"></script>
+
+</body>
+</html>
+

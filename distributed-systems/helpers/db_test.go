@@ -4,29 +4,6 @@ import (
 	"testing"
 )
 
-// func TestCreateTable(t *testing.T) {
-// 	type args struct {
-// 		j     []byte
-// 		db    *sql.DB
-// 		uname string
-// 		email string
-// 	}
-// 	tests := []struct {
-// 		name string
-// 		args args
-// 		want Responce
-// 	}{
-// 	// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			if got := CreateTable(tt.args.j, tt.args.db, tt.args.uname, tt.args.email); !reflect.DeepEqual(got, tt.want) {
-// 				t.Errorf("CreateTable() = %v, want %v", got, tt.want)
-// 			}
-// 		})
-// 	}
-// }
-
 func Test_getCreateQuery(t *testing.T) {
 	type args struct {
 		table Table
@@ -76,19 +53,30 @@ func Test_getInsertQuery(t *testing.T) {
 	}
 }
 
-// func Test_errHandler(t *testing.T) {
-// 	type args struct {
-// 		err error
-// 	}
-// 	tests := []struct {
-// 		name string
-// 		args args
-// 	}{
-// 	// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			errHandler(tt.args.err)
-// 		})
-// 	}
-// }
+func Test_keyCheck(t *testing.T) {
+	type args struct {
+		stored []Pair
+		user   []Pair
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{"test1",
+			args{[]Pair{Pair{"a", "sdh"}, Pair{"b", "sgf"}, Pair{"c", "dagsdg"}},
+				[]Pair{Pair{"a", "sdfh"}, Pair{"b", "fgh"}, Pair{"c", "sghsgg"}}},
+			true},
+		{"test1",
+			args{[]Pair{Pair{"a", "sdh"}, Pair{"b", "sgf"}, Pair{"c", "dagsdg"}},
+				[]Pair{Pair{"x", "sdfh"}, Pair{"b", "fgh"}, Pair{"c", "sghsgg"}}},
+			false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := keyCheck(tt.args.stored, tt.args.user); got != tt.want {
+				t.Errorf("keyCheck() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

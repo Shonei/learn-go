@@ -1,9 +1,13 @@
+// Package hlp provides functions for accessing the database
+// and server handlers
 package hlp
 
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"log"
 
 	"github.com/lib/pq"
 )
@@ -17,7 +21,7 @@ type Table struct {
 // Pair key values for creating and inserting data
 type Pair struct {
 	Key   string
-	Value string
+	Value string `json:"omitempty"`
 }
 
 // Responce structure for confirming registration for users
@@ -35,16 +39,18 @@ type Responce struct {
 func CreateTable(j []byte, db *sql.DB, email string) Responce {
 	table := &Table{}
 	json.Unmarshal(j, &table)
+	fmt.Println(table)
 	res := Responce{}
-	insertQuery := "Insert into users(uname, get, insertQ, email) values($1, $2, $3, $4)"
+	j, err := json.Marshal(table.Keys)
+	insertQuery := "Insert into users(uname, get, email, json) values($1, $2, $3, $4)"
 	createQuery := getCreateQuery(*table)
 	get := "select * from " + table.User + ";"
-	insert := getInsertQuery(table.Keys, table.User)
 
 	// transaction to register user and create his table
-	err := registerUser(db, insertQuery, createQuery, table.User, get, insert, email)
+	err = registerUser(db, insertQuery, createQuery, table.User, get, email, string(j))
 	if err != nil {
 		if _, ok := err.(*pq.Error); ok {
+			fmt.Println(err)
 			res.Error = "User already exists."
 		} else {
 			res.Error = "Failed to register user."
@@ -74,21 +80,7 @@ func getCreateQuery(table Table) string {
 	return temp + table.User + details
 }
 
-func getInsertQuery(keys []Pair, user string) string {
-	v := ""
-	k := ""
-	for i := 0; i < len(keys); i++ {
-		v += "$" + string(i+1)
-		k += "$" + string(i+1+len(keys))
-		if i+1 != len(keys) {
-			v += ","
-			v += "'"
-		}
-	}
-	return "insert into " + user + "(" + k + ") values (" + v + ");"
-}
-
-func registerUser(db *sql.DB, insertQuery, createQuery, uname, get, insert, email string) error {
+func registerUser(db *sql.DB, insertQuery, createQuery, uname, get, email, j string) error {
 	tx, err := db.Begin()
 	if err != nil {
 		tx.Rollback()
@@ -104,7 +96,7 @@ func registerUser(db *sql.DB, insertQuery, createQuery, uname, get, insert, emai
 	defer stmt.Close()
 
 	// put user into db
-	_, err = stmt.Exec(uname, get, insert, email)
+	_, err = stmt.Exec(uname, get, email, j)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -122,10 +114,11 @@ func registerUser(db *sql.DB, insertQuery, createQuery, uname, get, insert, emai
 }
 
 // GetUsersData returns the information a users has stored
-// in his custom database.
-func GetUsersData(db *sql.DB, uname, email string) []byte {
+// in his custom database. If there was an error nil is returned
+func GetUsersData(db *sql.DB, uname, email string) [][]Pair {
 	row, err := db.Query("select email, get from users where uname = $1;", uname)
 	if err != nil {
+		fmt.Println(err)
 		return nil
 	}
 	defer row.Close()
@@ -135,27 +128,28 @@ func GetUsersData(db *sql.DB, uname, email string) []byte {
 	if row.Next() {
 		row.Scan(&e, &get)
 		if email != e {
+			log.Println("Email missmatch. No permision granted.")
 			// wrong user
 			return nil
 		}
 	} else {
 		// wrong username
+		log.Println("I don't know why is that here. Sorry")
 		return nil
 	}
 
+	// get the data from the users table
 	rows, err := db.Query(get)
 	data, err := readRows(rows)
 	if err != nil {
 		return nil
 	}
-	jsonInfo, err := json.Marshal(data)
-	if err != nil {
-		return nil
-	}
-
-	return jsonInfo
+	return data
 }
 
+// reads arbytrery data from sql result
+// returns it as an array of array
+// [[{Key:"",Value:""},{Key:"",Value:""}],[{Key:"",Value:""},{Key:"",Value:""}]]
 func readRows(rows *sql.Rows) ([][]Pair, error) {
 	cols, err := rows.Columns()
 	if err != nil {
@@ -166,17 +160,20 @@ func readRows(rows *sql.Rows) ([][]Pair, error) {
 	ret := [][]Pair{}
 	dest := make([]interface{}, len(cols))
 
+	// load the interface with pointers to get the data
 	for i := range rawResult {
 		dest[i] = &rawResult[i]
 	}
 
 	for rows.Next() {
+		// read data into dest that hold the pointers
 		err := rows.Scan(dest...)
 		if err != nil {
 			return nil, err
 		}
 
 		result := []Pair{}
+		// read the pointers and and them to the result
 		for i, raw := range rawResult {
 			if raw == nil {
 				result = append(result, Pair{Key: cols[i], Value: ""})
@@ -188,4 +185,83 @@ func readRows(rows *sql.Rows) ([][]Pair, error) {
 		ret = append(ret, result)
 	}
 	return ret, nil
+}
+
+// InsertIntoUser is used to put data into the custom user table
+// It needs the array of data to put and the username
+func InsertIntoUser(db *sql.DB, js []byte, uname string) error {
+	data := &[]Pair{}
+	json.Unmarshal(js, &data)
+
+	var s string
+	err := db.QueryRow("select json from users where uname = $1",
+		uname).Scan(&s)
+	if err != nil {
+		// the scan error handled here
+		return err
+	}
+
+	j := []Pair{}
+	err = json.Unmarshal([]byte(s), &j)
+
+	// Check to see if user has given the right keys for the table
+	if !keyCheck(j, *data) {
+		return errors.New("Wrong user keys")
+	}
+	put := getInsertQuery(*data, uname)
+
+	// Prepare the insert query
+	stmt, err := db.Prepare(put)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	// execute the query and and check error
+	// we don't care about the returned data
+	_, err = stmt.Exec()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// bad way to check if user has given the right keys
+// good enough for now but thinnk about reimplamenting it later
+func keyCheck(stored, user []Pair) bool {
+	for i := range stored {
+		val := true
+		for j := range user {
+			if stored[i].Key == user[j].Key {
+				val = true
+				break
+			} else {
+				val = false
+			}
+		}
+		if !val {
+			return false
+		}
+	}
+	return true
+}
+
+// again bad way to do it when you take security into account
+// this is heaven for SQL injection attacks
+// Well the system will go down in a month so it should be fine till then
+// This generates the insert query for a users table
+func getInsertQuery(data []Pair, uname string) string {
+	put := "insert into " + uname + "("
+	key := ""
+	vals := ""
+
+	for i := 0; i < len(data); i++ {
+		key += data[i].Key
+		vals += "'" + data[i].Value + "'"
+		if i+1 != len(data) {
+			key += ", "
+			vals += ", "
+		}
+	}
+	return put + key + ") values(" + vals + ");"
 }
