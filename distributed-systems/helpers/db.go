@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/lib/pq"
 )
@@ -21,7 +20,7 @@ type Table struct {
 // Pair key values for creating and inserting data
 type Pair struct {
 	Key   string
-	Value string `json:"omitempty"`
+	Value string `json:",omitempty"`
 }
 
 // Responce structure for confirming registration for users
@@ -29,7 +28,6 @@ type Responce struct {
 	GetURL          string
 	PostURL         string
 	PostDescription string
-	Status          string
 	Description     string
 	Error           string
 }
@@ -39,7 +37,7 @@ type Responce struct {
 func CreateTable(j []byte, db *sql.DB, email string) Responce {
 	table := &Table{}
 	json.Unmarshal(j, &table)
-	fmt.Println(table)
+	// fmt.Println(table)
 	res := Responce{}
 	j, err := json.Marshal(table.Keys)
 	insertQuery := "Insert into users(uname, get, email, json) values($1, $2, $3, $4)"
@@ -58,10 +56,9 @@ func CreateTable(j []byte, db *sql.DB, email string) Responce {
 		return res
 	}
 
-	res.GetURL = "http://localhost:8080/get/{user}"
-	res.PostURL = "http://localhost:8080/post"
-	res.PostDescription = `When posting data it should be in a JSON of the form {"User": "name-you-registered", "Keys": [{"Key":"the-name-of-variable-in-your-db", "Value": "value-you-want-placed"}]}. Each request will result in a single row being added.`
-	res.Status = "OK"
+	res.GetURL = "http://localhost:8080/get/{username}"
+	res.PostURL = "http://localhost:8080/post/{username}"
+	res.PostDescription = `When posting data it should be in a JSON of the form {[{"Key":"the-name-of-variable-in-your-db", "Value": "value-you-want-placed"}]}.You should have a key value pair for each column in your table. Each request will result in a single row being added.`
 	res.Description = "Thank you for registering. The data you wish to send in a post should be in json format."
 	return res
 }
@@ -115,26 +112,18 @@ func registerUser(db *sql.DB, insertQuery, createQuery, uname, get, email, j str
 
 // GetUsersData returns the information a users has stored
 // in his custom database. If there was an error nil is returned
-func GetUsersData(db *sql.DB, uname, email string) [][]Pair {
-	row, err := db.Query("select email, get from users where uname = $1;", uname)
+func GetUsersData(db *sql.DB, uname string) [][]Pair {
+	row, err := db.Query("select get from users where uname = $1;", uname)
 	if err != nil {
-		fmt.Println(err)
 		return nil
 	}
 	defer row.Close()
-	var e string
 	var get string
 
 	if row.Next() {
-		row.Scan(&e, &get)
-		if email != e {
-			log.Println("Email missmatch. No permision granted.")
-			// wrong user
-			return nil
-		}
+		row.Scan(&get)
 	} else {
 		// wrong username
-		log.Println("I don't know why is that here. Sorry")
 		return nil
 	}
 
@@ -192,6 +181,8 @@ func readRows(rows *sql.Rows) ([][]Pair, error) {
 func InsertIntoUser(db *sql.DB, js []byte, uname string) error {
 	data := &[]Pair{}
 	json.Unmarshal(js, &data)
+	// fmt.Println(string(js))
+	// fmt.Println(data)
 
 	var s string
 	err := db.QueryRow("select json from users where uname = $1",
@@ -208,6 +199,7 @@ func InsertIntoUser(db *sql.DB, js []byte, uname string) error {
 	if !keyCheck(j, *data) {
 		return errors.New("Wrong user keys")
 	}
+
 	put := getInsertQuery(*data, uname)
 
 	// Prepare the insert query

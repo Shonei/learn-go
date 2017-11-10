@@ -18,22 +18,18 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
-
+	// fmt.Println("аогяожгяаого")
 	http.HandleFunc("/", hlp.Root(db))
 	http.HandleFunc("/get/", hlp.Get(db))
+	http.HandleFunc("/post/", hlp.Post(db))
 	http.ListenAndServe(":8080", nil)
-
-	// res := hlp.CreateTable([]byte(`{"User": "Shonei", "Keys": [{"Key":"one"}, {"Key":"shdgd"}, {"Key":"two"}]}`), db, "fjghfg")
-	// fmt.Println(res)
-	// hlp.GetUsersData(db, "Shonei", "fjghfg")
-	// d := []hlp.Pair{hlp.Pair{Key: "one", Value: "sdadgg"},
-	// 	hlp.Pair{Key: "shdgd", Value: "sdgereyh"},
-	// 	hlp.Pair{Key: "two", Value: "sdgzvasok"}}
-	// foo, err := json.Marshal(d)
-	// if err != nil {
-	// 	return
-	// }
-	// hlp.InsertIntoUser(db, foo, "Shonei")
 }
 
-// curl --header "Email: teodor.shyl@gmail.com" --data '{"User": "dfhdf", "Keys": [{"Key":"one"}, {"Key":"shdgd"}, {"Key":"two"}]}'
+// registering a user
+// curl --header "Email: teodor.shyl@gmail.com" --data '{"User": "Shyl", "Keys": [{"Key":"one"}, {"Key":"two"}]}' http://localhost:8080
+
+// put data innto table
+// curl --data '[{"Key": "one", "Value": "sdadgg"}, {"Key": "two", "Value": "sdgzvasok"}]' http://localhost:8080/post/Shyl
+
+// get data from table
+// curl http://localhost:8080/get/Shyl

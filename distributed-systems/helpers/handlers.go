@@ -30,11 +30,6 @@ func Root(db *sql.DB) func(http.ResponseWriter, *http.Request) {
 			return
 		}
 
-		var table Table
-		// converts body to swrings and makes a reader to it
-		// passes the reader to the json decoder and decodes the data to table
-		json.NewDecoder(strings.NewReader(string(body))).Decode(&table)
-
 		email := r.Header.Get("email")
 		if email == "" {
 			w.Write([]byte("Please prove an email in the email http header"))
@@ -55,28 +50,62 @@ func Get(db *sql.DB) func(http.ResponseWriter, *http.Request) {
 	// func Get() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		fmt.Println(r.URL.Path)
+
 		// make sure we have the right path
 		if !strings.Contains(r.URL.Path, "/get/") {
 			http.Error(w, "Path doesnt' match", http.StatusBadRequest)
 			return
 		}
 
-		uname := strings.Trim(r.URL.Path, "/get/")
+		uname := strings.TrimPrefix(r.URL.Path, "/get/")
 
-		email := r.Header.Get("email")
-		if email == "" {
-			w.Write([]byte("Please prove an email in the email http header"))
-			return
-		}
-		fmt.Println(uname)
-		fmt.Println(email)
-		data := GetUsersData(db, uname, email)
+		data := GetUsersData(db, uname)
 		if data == nil {
 			w.Write([]byte("You dont have any data stored"))
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(data)
+	}
+}
+
+// Post will handle request for users to put data into their table.
+// It is passed a database and returns a http handler function.
+func Post(db *sql.DB) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		// make sure we have the right path
+		if !strings.Contains(r.URL.Path, "/post/") {
+			// fmt.Println("err")
+			http.Error(w, "Path doesnt' match", http.StatusBadRequest)
+			return
+		}
+
+		uname := strings.TrimPrefix(r.URL.Path, "/post/")
+
+		// get the data to put into the db
+
+		// j := &[]Pair{}
+		// json.NewDecoder(r.Body).Decode(&j)
+		// fmt.Println(j)
+
+		body, err := ioutil.ReadAll(r.Body)
+		fmt.Println("Body")
+		fmt.Println(string(body))
+		if err != nil {
+			// fmt.Println(err)
+			http.Error(w, "No JSON provided", http.StatusBadRequest)
+			return
+		}
+
+		err = InsertIntoUser(db, body, uname)
+		if err != nil {
+			// fmt.Println(err)
+			http.Error(w, "We were unable to update your data", http.StatusInternalServerError)
+			return
+		}
+
+		w.Write([]byte("Update successful"))
 	}
 }
