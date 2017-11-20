@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -19,7 +20,12 @@ type Auth struct {
 func main() {
 	http.HandleFunc("/search/", search)
 	http.HandleFunc("/user/", user)
-	http.ListenAndServe(":8081", nil)
+	http.HandleFunc("/_ah/health", healthCheckHandler)
+	http.ListenAndServe(":8080", nil)
+}
+
+func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "ok")
 }
 
 func user(w http.ResponseWriter, r *http.Request) {

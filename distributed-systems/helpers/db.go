@@ -56,8 +56,8 @@ func CreateTable(j []byte, db *sql.DB, email string) Responce {
 		return res
 	}
 
-	res.GetURL = "http://localhost:8080/get/{username}"
-	res.PostURL = "http://localhost:8080/post/{username}"
+	res.GetURL = "https://shonei-portfolio.appspot.com/get/{username}"
+	res.PostURL = "https://shonei-portfolio.appspot.com/post/{username}"
 	res.PostDescription = `When posting data it should be in a JSON of the form {[{"Key":"the-name-of-variable-in-your-db", "Value": "value-you-want-placed"}]}.You should have a key value pair for each column in your table. Each request will result in a single row being added.`
 	res.Description = "Thank you for registering. The data you wish to send in a post should be in json format."
 	return res
@@ -81,6 +81,7 @@ func registerUser(db *sql.DB, insertQuery, createQuery, uname, get, email, j str
 	tx, err := db.Begin()
 	if err != nil {
 		tx.Rollback()
+		// fmt.Println(err)
 		return err
 	}
 
@@ -188,6 +189,7 @@ func InsertIntoUser(db *sql.DB, js []byte, uname string) error {
 	err := db.QueryRow("select json from users where uname = $1",
 		uname).Scan(&s)
 	if err != nil {
+		// fmt.Println(err)
 		// the scan error handled here
 		return err
 	}
@@ -197,6 +199,7 @@ func InsertIntoUser(db *sql.DB, js []byte, uname string) error {
 
 	// Check to see if user has given the right keys for the table
 	if !keyCheck(j, *data) {
+		// fmt.Println("wrong")
 		return errors.New("Wrong user keys")
 	}
 

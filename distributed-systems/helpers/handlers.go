@@ -3,7 +3,6 @@ package hlp
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -74,7 +73,7 @@ func Get(db *sql.DB) func(http.ResponseWriter, *http.Request) {
 func Post(db *sql.DB) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		// make sure we have the right path
 		if !strings.Contains(r.URL.Path, "/post/") {
 			// fmt.Println("err")
@@ -91,8 +90,8 @@ func Post(db *sql.DB) func(http.ResponseWriter, *http.Request) {
 		// fmt.Println(j)
 
 		body, err := ioutil.ReadAll(r.Body)
-		fmt.Println("Body")
-		fmt.Println(string(body))
+		// fmt.Println("Body")
+		// fmt.Println(string(body))
 		if err != nil {
 			// fmt.Println(err)
 			http.Error(w, "No JSON provided", http.StatusBadRequest)
