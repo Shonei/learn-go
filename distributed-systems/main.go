@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	_ "github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/dialers/postgres"
 	"github.com/Shonei/learn-go/distributed-systems/helpers"
@@ -15,9 +14,9 @@ import (
 
 func main() {
 	// dsn := "host=shonei-portfolio:europe-west1:distributed-systems dbname=postgres user=postgres password=rz9h19cg sslmode=disable"
-	dsn := os.Getenv("POSTGRES_CONNECTION")
+	// dsn := os.Getenv("POSTGRES_CONNECTION")
 
-	db, err := sql.Open("cloudsqlpostgres", dsn)
+	db, err := sql.Open("cloudsqlpostgres", "host=shonei-portfolio:europe-west1:distributed-systems dbname=postgres user=postgres password=rz9h19cg sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -27,7 +26,7 @@ func main() {
 	http.HandleFunc("/get/", hlp.Get(db))
 	http.HandleFunc("/post/", hlp.Post(db))
 	http.HandleFunc("/_ah/health", healthCheckHandler)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8081", nil)
 
 	// appengine.Main()
 }

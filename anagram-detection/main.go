@@ -1,12 +1,24 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func main() {
-	str := "AbrAcadAbRa"
-	anagram := "cAda"
+	str := "Acda"
+	anagram := "c0saA"
+	t := '0'
+	fmt.Println(t)
+	// fmt.Println(findAnagrams(str, anagram))
+	for _, val := range str {
+		t = t ^ val
+	}
 
-	fmt.Println(findAnagrams(str, anagram))
+	for _, val := range anagram {
+		t = t ^ val
+	}
+
+	fmt.Println(t)
 }
 
 func findAnagrams(str, anagram string) int {

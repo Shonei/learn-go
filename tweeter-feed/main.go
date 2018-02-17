@@ -1,4 +1,4 @@
-package main
+package tweet
 
 import (
 	"bytes"
@@ -9,7 +9,8 @@ import (
 	"net/http"
 	"strings"
 
-	_ "github.com/lib/pq"
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/urlfetch"
 )
 
 type Auth struct {
@@ -17,11 +18,11 @@ type Auth struct {
 	Token string `json:"access_token"`
 }
 
-func main() {
+func init() {
 	http.HandleFunc("/search/", search)
 	http.HandleFunc("/user/", user)
 	http.HandleFunc("/_ah/health", healthCheckHandler)
-	http.ListenAndServe(":8080", nil)
+	// http.ListenAndServe(":8080", nil)
 }
 
 func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
@@ -40,7 +41,7 @@ func user(w http.ResponseWriter, r *http.Request) {
 	query := strings.Trim(r.URL.Path, "/user/")
 
 	url := "https://api.twitter.com/1.1/statuses/user_timeline.json?count=10&screen_name="
-	res, err := getTweets(url, query)
+	res, err := getTweets(url, query, r)
 	if err != nil {
 		http.Error(w, "We were unable to retrieve tweets.", http.StatusInternalServerError)
 	}
@@ -60,7 +61,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 	query := strings.Trim(r.URL.Path, "/search/")
 
 	url := "https://api.twitter.com/1.1/search/tweets.json?count=10&result_type=mixed&lang=en&q="
-	res, err := getTweets(url, query)
+	res, err := getTweets(url, query, r)
 	if err != nil {
 		http.Error(w, "We were unable to retrieve tweets.", http.StatusInternalServerError)
 	}
@@ -68,7 +69,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
-func getTweets(url, search string) ([]byte, error) {
+func getTweets(url, search string, r *http.Request) ([]byte, error) {
 	authURL := "https://api.twitter.com/oauth2/token"
 	body := []byte("grant_type=client_credentials")
 
@@ -82,7 +83,9 @@ func getTweets(url, search string) ([]byte, error) {
 	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(appAuths)))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8.")
 
-	res, err := http.DefaultClient.Do(req)
+	ctx := appengine.NewContext(r)
+	client := urlfetch.Client(ctx)
+	res, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +107,9 @@ func getTweets(url, search string) ([]byte, error) {
 	get.Header.Set("Authorization", "Bearer "+auth.Token)
 
 	// get the response from the search
-	tweets, err := http.DefaultClient.Do(get)
+	// ctx := appengine.NewContext(r)
+	// client := urlfetch.Client(ctx)
+	tweets, err := client.Do(get)
 	if err != nil {
 		return nil, err
 	}
